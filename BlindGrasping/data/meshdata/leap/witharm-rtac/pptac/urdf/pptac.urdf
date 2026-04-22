@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="pptac">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-6.2138015285651E-05 -1.26908776070245E-05 0.0136851202446479"
+        rpy="0 0 0" />
+      <mass
+        value="0.00451744758871871" />
+      <inertia
+        ixx="7.9681275710165E-07"
+        ixy="-1.01113246312862E-09"
+        ixz="1.49279392177389E-08"
+        iyy="7.54464889763721E-07"
+        iyz="-2.37802227410315E-10"
+        izz="7.57921486514563E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="pptac">
+    <inertial>
+      <origin
+        xyz="1.66533453693773E-16 2.22044604925031E-16 0.00239062500023246"
+        rpy="0 0 0" />
+      <mass
+        value="0.0113097335526099" />
+      <inertia
+        ixx="8.60994884157874E-07"
+        ixy="3.97046694025453E-23"
+        ixz="2.84550130718242E-22"
+        iyy="8.60994884157874E-07"
+        iyz="-2.94476298068878E-22"
+        izz="1.11330189658064E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/pptac.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/pptac.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pptac"
+    type="fixed">
+    <origin
+      xyz="-0.000403181112703876 0 0.0345440838795994"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="pptac" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

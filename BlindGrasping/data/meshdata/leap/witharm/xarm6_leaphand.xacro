@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="xarm6_leaphand">
+
+  <!-- 引入你的宏定义 -->
+  <xacro:include filename="$(find xarm_leaphand_description)/urdf/xarm6_leaphand.urdf.xacro"/>
+
+  <!-- 调用宏（传入 prefix 参数，如果不需要就设为空） -->
+  <xacro:xarm6_leaphand prefix=""/>
+
+</robot>

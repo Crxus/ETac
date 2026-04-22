@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="leaphand_mount" params="parent">
+    
+    <!-- 加载 LEAP Hand 的 URDF -->
+    <xacro:include filename="$(find xarm_leaphand_description)/urdf/leaphand.urdf"/>
+
+    <!-- 定义与 xArm 连接的固定关节 -->
+    <joint name="leaphand_fixed_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="leap_hand_base_link"/> <!-- 替换为 LEAP Hand 的 base link -->
+      <origin xyz="0 0 0" rpy="0 0 0"/> <!-- 根据需要调整 -->
+    </joint>
+
+  </xacro:macro>
+</robot>

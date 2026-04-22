@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: etac-sim
+Version: 0.1.0
+Summary: ETac tactile simulation module
+Author: ETac Contributors
+Requires-Python: >=3.8
+Requires-Dist: numpy
+Requires-Dist: torch
+Requires-Dist: trimesh
+Requires-Dist: transforms3d

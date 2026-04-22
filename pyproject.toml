@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "etac-sim"
+version = "0.1.0"
+description = "ETac tactile simulation module"
+requires-python = ">=3.8"
+authors = [
+  { name = "ETac Contributors" }
+]
+dependencies = [
+  "numpy",
+  "torch",
+  "trimesh",
+  "transforms3d"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ETac", "ETac.*"]

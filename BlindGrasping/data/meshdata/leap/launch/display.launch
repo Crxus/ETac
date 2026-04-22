@@ -1,0 +1,15 @@
+<launch>
+    <arg name="model" default="$(find xarm_leaphand_description)/urdf/xarm6_leaphand.urdf.xacro"/>
+  
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+  
+    <!-- 启动 robot_state_publisher 以发布 tf -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen"/>
+  
+    <!-- 启动 joint_state_publisher 以发布关节状态 -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen"/>
+  
+    <!-- 启动 RViz 用于显示 -->
+    <node name="rviz" pkg="rviz" type="rviz" output="screen"/>
+  </launch>
+  
