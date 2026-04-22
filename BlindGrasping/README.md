@@ -35,6 +35,3 @@ We provide an example checkpoint for cube. Run:
 ```bash
 python train.py task=ShadowHand num_envs=64 checkpoint=runs/cube-ckpt/nn/ShadowHand.pth test=True
 ```
-
-If your GPU memory is limited, reduce `num_envs` (for example, 64 or 32).
-
