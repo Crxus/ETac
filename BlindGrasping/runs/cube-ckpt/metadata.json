@@ -1,0 +1,12 @@
+{
+  "checkpoint": "runs/cube-ckpt/nn/ShadowHand.pth",
+  "sha256": "24d3c081a8df4ebd17dd51f2554fd46242de9448f862b0cdc691823c713690a5",
+  "source_run": "original-public-cube-checkpoint",
+  "observations": 2940,
+  "actions": 24,
+  "saved_epoch": 5181,
+  "surface_point_file": "points-1000-0903.txt",
+  "feature_index_file": "",
+  "training_success_at_saved_epoch": null,
+  "isaac_gym_reevaluation": "not performed in this release"
+}

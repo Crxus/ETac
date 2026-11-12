@@ -1,0 +1,12 @@
+{
+  "checkpoint": "runs/egg-ckpt/nn/ShadowHand.pth",
+  "sha256": "b804b9ca954351fe1cb91a7e9bab4fc143aed0408566f8fc24b4acd69a4713bf",
+  "source_run": "ShadowHand_31-13-22-20",
+  "observations": 1335,
+  "actions": 24,
+  "saved_epoch": 14076,
+  "surface_point_file": "data/tactile/shadow-2000.json",
+  "feature_index_file": "data/tactile/shadow-400-indices.json",
+  "training_success_at_saved_epoch": 0.9745633602142334,
+  "isaac_gym_reevaluation": "not performed in this release"
+}

@@ -51,7 +51,7 @@ env:
   fallPenalty: -20.0
   outDistance: 0.35
 
-  objectType: "cube"  # in ['sodacan', 'teapot', 'tank', 'rock', 'egg', 'food', 'apple', 'cube', 'light']
+  objectType: "cube"  # in ['cube', 'egg', 'rock', 'sodacan']
   observationType: "blind" 
   asymmetric_observations: True
   contact_observations: True   # whether add contact info into observation
@@ -59,6 +59,9 @@ env:
   printNumSuccesses: False
   maxConsecutiveSuccesses: 0
   numSurfacePoints: 1000  # the number of surface points
+  tactilePointFile: "points-1000-0903.txt"
+  tactileFeatureFile: ""  # empty selects all nodes in their original order
+  expectedObservationSize: 0  # release profiles check this against their policy
   fingerTips: False
 
   asset:

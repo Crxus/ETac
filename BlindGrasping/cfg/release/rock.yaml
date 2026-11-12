@@ -1,0 +1,13 @@
+# @package _global_
+checkpoint: runs/rock-ckpt/nn/ShadowHand.pth
+test: true
+num_envs: 64
+task:
+  env:
+    objectType: rock
+    useRelativeControl: false
+    controlFrequencyInv: 1
+    numSurfacePoints: 2000
+    tactilePointFile: data/tactile/shadow-2000.json
+    tactileFeatureFile: data/tactile/shadow-400-indices.json
+    expectedObservationSize: 1335

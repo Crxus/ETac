@@ -151,4 +151,6 @@ You may use your own predicted data for visualization.
 
 ### 3. Tactile-based dexterous manipulation
 
-See `BlindGrasping`
+See [BlindGrasping](BlindGrasping/README.md) for the four supported ShadowHand
+objects (Cube, Egg, Rock, and Sodacan), their checkpoints, matching evaluation
+profiles, and the implemented success definition.

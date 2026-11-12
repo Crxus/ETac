@@ -1,0 +1,12 @@
+{
+  "checkpoint": "runs/sodacan-ckpt/nn/ShadowHand.pth",
+  "sha256": "97aa7e88be10d926a046c8d95149958d73d812fdffffbca687dda00c8709b7b2",
+  "source_run": "ShadowHand_30-12-29-26",
+  "observations": 1335,
+  "actions": 24,
+  "saved_epoch": 24840,
+  "surface_point_file": "data/tactile/shadow-2000.json",
+  "feature_index_file": "data/tactile/shadow-400-indices.json",
+  "training_success_at_saved_epoch": 0.9455177783966064,
+  "isaac_gym_reevaluation": "not performed in this release"
+}

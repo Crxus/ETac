@@ -1,0 +1,13 @@
+# @package _global_
+checkpoint: runs/cube-ckpt/nn/ShadowHand.pth
+test: true
+num_envs: 64
+task:
+  env:
+    objectType: cube
+    useRelativeControl: false
+    controlFrequencyInv: 1
+    numSurfacePoints: 1000
+    tactilePointFile: points-1000-0903.txt
+    tactileFeatureFile: ''
+    expectedObservationSize: 2940

@@ -57,6 +57,7 @@ from isaacgymenvs.utils.torch_jit_utils import scale, unscale, quat_mul, quat_co
     to_torch, get_axis_params, torch_rand_float, tensor_clamp  
 
 from isaacgymenvs.tasks.base.vec_task import VecTask
+from isaacgymenvs.utils.tactile_config import load_tactile_points, load_feature_indices
 
 import math
 
@@ -131,13 +132,8 @@ class ShadowHand(VecTask):
 
 
         self.asset_codes = {
-            'apple': "apple", 
             'rock': "rock",
             'sodacan': "sodacan",
-            'tank': "tank", 
-            'teapot': "teapot",
-            'food': "food",
-            'light': "light",
             'egg': 'egg',
             'cube': 'cube', 
         }
@@ -150,19 +146,9 @@ class ShadowHand(VecTask):
         # ensure the hand to make contact with object at the beginning of each episode
         self.start_heights = {
             'sodacan': 0.05,
-            'teapot': 0.1,
-            'tank': 0.08,
             'rock': 0.08,
             'egg': 0.07,
-            'food': 0.06,
-            'apple': 0.06,
             'cube': 0.06,
-            'light': 0.08
-        }
-
-        self.asset_meshes_dict = {
-            "block": "./data/meshdata/cube_multicube/meshes/dex_cube.obj",
-            "ball": './data/meshdata/cube_multicube/meshes/ball.obj'
         }
 
         self.obs_type = self.cfg["env"]["observationType"]
@@ -211,10 +197,13 @@ class ShadowHand(VecTask):
         ft_model_paths = ['propagation-ckpt/linear-ft.pth', 'propagation-ckpt/resdualnet-ft.pth']
         self.etac.setup_propagation(model_paths, ft_model_paths)
 
-        with open('./points-1000-0903.txt', 'r') as f:
-            crap = json.loads(f.read())
-            for link in crap.keys():
-                self.etac.hand_model.mesh[link]['surface_points'] = torch.tensor(crap[link]).to(rl_device)
+        task_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        point_path = os.path.join(task_root, self.cfg['env'].get(
+            'tactilePointFile', 'points-1000-0903.txt'))
+        point_data = load_tactile_points(point_path)
+        for link, points in point_data.items():
+            self.etac.hand_model.mesh[link]['surface_points'] = torch.tensor(
+                points, dtype=torch.float, device=rl_device).reshape(-1, 3)
         self.etac.set_dicts()
 
         if self.ft_contact: # check the number of nodes
@@ -233,15 +222,20 @@ class ShadowHand(VecTask):
                 temp+=len(self.etac.hand_model.mesh[link]['surface_points'])
             assert(temp <= self.num_surface_points)
             self.num_surface_points = temp
-        self.num_tac_features = self.num_surface_points
+        feature_path = self.cfg['env'].get('tactileFeatureFile', '')
+        feature_indices = load_feature_indices(
+            os.path.join(task_root, feature_path) if feature_path else None,
+            self.num_surface_points)
+        self.tactile_feature_indices = torch.tensor(
+            feature_indices, dtype=torch.long, device=rl_device)
+        self.num_tac_features = len(feature_indices)
 
         # initialize the object 
         self.etac.set_object(self.asset_codes[self.object_type])
 
-        if self.asymmetric_obs:
-            num_states = 174 
-            if self.ft_contact:
-                num_states -= 12 # only five links for contact vector
+        num_states = 174 if self.asymmetric_obs else 0
+        if self.asymmetric_obs and self.ft_contact:
+            num_states -= 12 # only five links for contact vector
 
         self.cfg["env"]["numObservations"] = self.num_obs_dict[self.obs_type]
         if self.ft_contact==True: 
@@ -253,7 +247,13 @@ class ShadowHand(VecTask):
         self.cfg["env"]["numActions"] = 24
 
         self.cfg["env"]["numObservations"] += 3*self.num_tac_features  
-        self.cfg["env"]["numStates"] += 3*self.num_tac_features # 3-diminsion displacement for each node
+        if self.asymmetric_obs:
+            self.cfg["env"]["numStates"] += 3*self.num_tac_features
+        expected_size = self.cfg['env'].get('expectedObservationSize', 0)
+        if expected_size and self.cfg['env']['numObservations'] != expected_size:
+            raise ValueError('Tactile settings do not match the checkpoint: '
+                             f"expected {expected_size} observations, got "
+                             f"{self.cfg['env']['numObservations']}")
 
 
         super().__init__(config=self.cfg, rl_device=rl_device, sim_device=sim_device, 
@@ -675,6 +675,9 @@ class ShadowHand(VecTask):
         self.fingertip_pos = self.rigid_body_states[:, self.fingertip_handles][:, :, 0:3]
 
         self.cps, self.contact_vector, self.displacements  = self.setup_model()
+        # Keep the saved feature order, including the original 400-node
+        # subset used by the released non-Cube policies.
+        self.displacements = self.displacements[:, self.tactile_feature_indices, :]
 
         self.compute_blind()
 
@@ -728,12 +731,10 @@ class ShadowHand(VecTask):
             states_end = displacement_start + self.num_tac_features # 147 + 
             
 
-            self.displacements[:, :, 0] /= (2.0 * self.feature_factor)
-            self.displacements[:, :, 1] /= (2.0 * self.feature_factor)
-            self.displacements[:, :, 2] /= (2.0 * self.feature_factor)
+            normalized_displacements = self.displacements / (2.0 * self.feature_factor)
 
             # (B, n, 3) --> (B, n*3)
-            self.states_buf[:, displacement_start: displacement_start + 3*self.num_tac_features] = self.displacements.reshape(self.num_envs, self.num_tac_features * 3)
+            self.states_buf[:, displacement_start: displacement_start + 3*self.num_tac_features] = normalized_displacements.reshape(self.num_envs, self.num_tac_features * 3)
             states_end = displacement_start + 3*self.num_tac_features # 150 + 3*num_tac_features 
 
             self.states_buf[:, states_end: states_end + self.num_actions] = self.actions # +24
@@ -762,11 +763,9 @@ class ShadowHand(VecTask):
 
             displacement_obs = contact_start + self.contact_vector.shape[1] # 94+17=111
 
-            self.displacements[:, :, 0] /= (2.0 * self.feature_factor)
-            self.displacements[:, :, 1] /= (2.0 * self.feature_factor)
-            self.displacements[:, :, 2] /= (2.0 * self.feature_factor)
+            normalized_displacements = self.displacements / (2.0 * self.feature_factor)
 
-            self.obs_buf[:, displacement_obs: displacement_obs + self.num_tac_features*3] = self.displacements.reshape(self.num_envs, self.num_tac_features*3)
+            self.obs_buf[:, displacement_obs: displacement_obs + self.num_tac_features*3] = normalized_displacements.reshape(self.num_envs, self.num_tac_features*3)
             obs_end = displacement_obs + 3 * self.num_tac_features 
 
             self.obs_buf[:, obs_end: obs_end + self.num_actions] = self.actions # +24
@@ -818,14 +817,8 @@ class ShadowHand(VecTask):
         
         #random rotat in x and y axis
         new_object_rot = randomize_rotation(rand_floats[:, 3], rand_floats[:, 4], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
-        if self.object_type == 'sodacan' or self.object_type == 'tank':
+        if self.object_type == 'sodacan':
             new_object_rot = randomize_rotation(0.5*torch.ones_like(rand_floats[:, 3]), rand_floats[:, 4], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
-            pass
-        elif self.object_type == 'light':
-            new_object_rot = randomize_rotation(0.2*rand_floats[:, 3], 0.2*rand_floats[:, 4], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
-        elif self.object_type == 'food':
-            new_object_rot = randomize_rotation(0.2*rand_floats[:, 3], 0.2*rand_floats[:, 4], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
-            pass
 
         #reset orientation and v a 
         self.root_state_tensor[self.object_indices[env_ids], 3:7] = new_object_rot
