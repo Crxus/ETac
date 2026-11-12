@@ -2,6 +2,7 @@
 checkpoint: runs/rock-ckpt/nn/ShadowHand.pth
 test: true
 num_envs: 64
+seed: 4247
 task:
   env:
     objectType: rock

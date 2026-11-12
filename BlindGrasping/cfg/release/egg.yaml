@@ -2,6 +2,7 @@
 checkpoint: runs/egg-ckpt/nn/ShadowHand.pth
 test: true
 num_envs: 64
+seed: 6329
 task:
   env:
     objectType: egg

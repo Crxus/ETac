@@ -2,6 +2,7 @@
 
 import ast
 import contextlib
+import copy
 import importlib.util
 import inspect
 import io
@@ -109,7 +110,16 @@ class ReleaseTests(unittest.TestCase):
                     load_feature_indices(path, 10)
 
     def test_all_documented_evaluation_configurations(self):
+        import yaml
+        from omegaconf import OmegaConf
+        launch_tree = ast.parse((ROOT / 'train.py').read_text())
+        preprocess = next(n for n in launch_tree.body
+                          if isinstance(n, ast.FunctionDef) and n.name == 'preprocess_train_config')
+        scope = {}
+        exec(compile(ast.Module(body=[preprocess], type_ignores=[]),
+                     str(ROOT / 'train.py'), 'exec'), scope)
         for obj in ('cube', 'egg', 'rock', 'sodacan'):
+            launch_configurations = []
             for args in ([f'+release={obj}'],
                          ['--config-path', f'runs/{obj}-ckpt', '--config-name', 'config']):
                 with self.subTest(object=obj, arguments=args):
@@ -117,13 +127,24 @@ class ReleaseTests(unittest.TestCase):
                         [sys.executable, 'train.py', *args, '--cfg', 'job', '--resolve'],
                         cwd=ROOT, text=True, capture_output=True)
                     self.assertEqual(process.returncode, 0, process.stderr)
-                    import yaml
                     configuration = yaml.safe_load(process.stdout)
+                    launch_configurations.append(configuration)
                     self.assertEqual(configuration['task']['env']['objectType'], obj)
                     self.assertEqual(configuration['checkpoint'], f'runs/{obj}-ckpt/nn/ShadowHand.pth')
                     self.assertTrue(configuration['test'])
                     self.assertEqual(configuration['task']['env']['controlFrequencyInv'], 1)
                     self.assertFalse(configuration['task']['env']['useRelativeControl'])
+                    self.assertFalse(configuration['pbt']['enabled'])
+                    self.assertEqual(configuration['train']['params']['load_path'],
+                                     configuration['checkpoint'])
+                    self.assertTrue(configuration['train']['params']['load_checkpoint'])
+                    self.assertEqual(configuration['train']['params']['config']['num_actors'],
+                                     configuration['task']['env']['numEnvs'])
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        processed = scope['preprocess_train_config'](
+                            OmegaConf.create(configuration), copy.deepcopy(configuration['train']))
+                    self.assertFalse(processed['params']['config']['population_based_training'])
+            self.assertEqual(launch_configurations[0], launch_configurations[1])
 
     def test_real_policy_loading_and_observation_writes(self):
         import torch

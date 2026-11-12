@@ -46,7 +46,8 @@ An aggregate manifest is available at `runs/checkpoints.json`.
 ## Evaluate a released checkpoint
 
 The release profiles set the object, checkpoint, tactile layout, and evaluation
-mode together:
+mode together. Both launch routes use the checkpoint's saved training seed;
+override `seed=...` to evaluate other initial random samples:
 
 ```bash
 python train.py +release=cube

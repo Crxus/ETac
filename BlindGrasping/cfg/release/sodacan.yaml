@@ -2,6 +2,7 @@
 checkpoint: runs/sodacan-ckpt/nn/ShadowHand.pth
 test: true
 num_envs: 64
+seed: 9
 task:
   env:
     objectType: sodacan

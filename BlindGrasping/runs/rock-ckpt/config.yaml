@@ -2,6 +2,8 @@ task_name: ${task.name}
 experiment: ''
 num_envs: 64
 seed: 4247
+pbt:
+  enabled: false
 torch_deterministic: false
 max_iterations: ''
 physics_engine: physx
