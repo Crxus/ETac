@@ -33,6 +33,9 @@ select those locations in the saved order and preserve the original scaling.
 The propagation-model weights are the same weights used by these policies.
 Do not load the non-Cube policies with the default Cube observation layout.
 
+The three non-Cube checkpoint directories also include a `README.md` with
+object-specific launch commands and an explanation of their 400-location tactile input.
+
 Each checkpoint directory includes:
 
 - `config.yaml`: complete, portable configuration for this release;
